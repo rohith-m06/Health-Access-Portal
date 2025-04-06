@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Facility Map - HealthAccess</title>
+    <meta name="description" content="Find healthcare facilities in underserved communities with our interactive map">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    
+    <style>
+        /* Map page specific styles */
+        .map-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 65px);
+        }
+        
+        .map-content {
+            display: flex;
+            flex: 1;
+            height: 100%;
+        }
+        
+        .map-sidebar {
+            width: 300px;
+            background-color: var(--background-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        #facilitiesMap {
+            flex: 1;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .map-controls {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .facility-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+        }
+        
+        .facility-list-item {
+            display: flex;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .facility-list-item:hover {
+            background-color: rgba(74, 111, 220, 0.1);
+        }
+        
+        .facility-icon {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .facility-info {
+            flex: 1;
+        }
+        
+        .facility-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+        }
+        
+        .facility-type-sm {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        
+        .facility-address-sm {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .distance {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            white-space: nowrap;
+            align-self: center;
+        }
+        
+        .user-location-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .user-marker {
+            color: white;
+        }
+        
+        .facility-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .facility-type-hospital {
+            border-color: #e53e3e;
+        }
+        
+        .facility-type-primary-care {
+            border-color: #38a169;
+        }
+        
+        .facility-type-specialty-care {
+            border-color: #805ad5;
+        }
+        
+        .facility-type-mobile-clinic {
+            border-color: #d69e2e;
+        }
+        
+        .facility-popup {
+            min-width: 200px;
+            max-width: 300px;
+        }
+        
+        .facility-popup h3 {
+            margin: 0 0 5px 0;
+        }
+        
+        .facility-type {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+        
+        .facility-distance {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .facility-details {
+            margin-bottom: 10px;
+        }
+        
+        .facility-details > div {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .facility-details svg {
+            margin-right: 5px;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .insurance-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .badge-medicaid {
+            background-color: #cbd5e0;
+            color: #4a5568;
+        }
+        
+        .badge-medicare {
+            background-color: #bee3f8;
+            color: #2b6cb0;
+        }
+        
+        .badge-sliding-fee {
+            background-color: #c6f6d5;
+            color: #2f855a;
+        }
+        
+        .insurance-badges-sm {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+        
+        .badge-sm {
+            font-size: 0.6rem;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .facility-services h4 {
+            margin: 0 0 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .facility-services ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .mobile-schedule h4 {
+            margin: 10px 0 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .mobile-schedule ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .facility-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .locate-button {
+            position: absolute;
+            top: 80px;
+            right: 10px;
+            z-index: 500;
+            background-color: white;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 5px;
+            cursor: pointer;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        }
+        
+        .locate-button:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Mobile sidebar toggle */
+        .map-sidebar-toggle {
+            display: none;
+            position: absolute;
+            top: 75px;
+            left: 10px;
+            z-index: 500;
+            background-color: white;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 5px;
+            cursor: pointer;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .map-content {
+                flex-direction: column;
+            }
+            
+            .map-sidebar {
+                width: 100%;
+                height: 50%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                display: none;
+            }
+            
+            .map-sidebar.active {
+                display: flex;
+            }
+            
+            #facilitiesMap {
+                height: 100%;
+            }
+            
+            .map-sidebar-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>HealthAccess</h1>
+        </div>
+        <nav>
+            <ul class="main-nav">
+                <li><a href="../index.html"><i data-feather="home"></i> Home</a></li>
+                <li><a href="map.html" class="active"><i data-feather="map"></i> Facility Map</a></li>
+                <li><a href="education.html"><i data-feather="book-open"></i> Education</a></li>
+                <li><a href="assessment.html"><i data-feather="activity"></i> Self-Assessment</a></li>
+                <li><a href="telehealth.html"><i data-feather="video"></i> Telehealth</a></li>
+                <li><a href="settings.html"><i data-feather="settings"></i> Settings</a></li>
+            </ul>
+            <button class="mobile-menu-btn">
+                <i data-feather="menu"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main class="map-container">
+        <div class="map-content">
+            <div class="map-sidebar">
+                <div class="map-controls">
+                    <h3>Healthcare Facilities</h3>
+                    <form id="facilityFilters">
+                        <div class="form-group">
+                            <label for="filterType">Facility Type</label>
+                            <select id="filterType" class="form-control">
+                                <option value="">All Types</option>
+                                <option value="Hospital">Hospital</option>
+                                <option value="Primary Care">Primary Care</option>
+                                <option value="Specialty Care">Specialty Care</option>
+                                <option value="Mobile Clinic">Mobile Clinic</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Mental Health">Mental Health</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="filterService">Service Offered</label>
+                            <select id="filterService" class="form-control">
+                                <option value="">All Services</option>
+                                <option value="General Medicine">General Medicine</option>
+                                <option value="Emergency Care">Emergency Care</option>
+                                <option value="Pediatrics">Pediatrics</option>
+                                <option value="Women's Health">Women's Health</option>
+                                <option value="Mental Health">Mental Health</option>
+                                <option value="Vaccinations">Vaccinations</option>
+                                <option value="Chronic Disease Management">Chronic Disease Management</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <input type="checkbox" id="filterMedicaid">
+                                <label for="filterMedicaid">Accepts Medicaid</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="filterMedicare">
+                                <label for="filterMedicare">Accepts Medicare</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="filterSlidingFee">
+                                <label for="filterSlidingFee">Sliding Fee Scale</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <button type="button" id="resetFilters" class="btn btn-secondary">Reset</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="facility-list" id="facilityList">
+                    <!-- Facility list items will be populated here -->
+                </div>
+            </div>
+            
+            <button class="map-sidebar-toggle" id="sidebarToggle">
+                <i data-feather="menu"></i>
+            </button>
+            
+            <div id="facilitiesMap"></div>
+            
+            <button class="locate-button" id="locateMe" title="Find my location">
+                <i data-feather="crosshair"></i>
+            </button>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HealthAccess</h3>
+                <p>Improving healthcare access in underserved communities</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="map.html">Facility Map</a></li>
+                    <li><a href="education.html">Education</a></li>
+                    <li><a href="assessment.html">Self-Assessment</a></li>
+                    <li><a href="telehealth.html">Telehealth</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Offline Use</h3>
+                <p>This application is designed to work offline. Save this page for offline access.</p>
+                <button id="saveOfflineBtn" class="btn btn-secondary">Save for Offline</button>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 HealthAccess. All rights reserved.</p>
+            <p>This application is for informational purposes only and does not constitute medical advice.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="../js/app.js"></script>
+    <script src="../js/database.js"></script>
+    <script src="../js/offline.js"></script>
+    <script src="../js/map.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Feather icons
+            feather.replace();
+            
+            // Sidebar toggle functionality for mobile
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mapSidebar = document.querySelector('.map-sidebar');
+            
+            if (sidebarToggle && mapSidebar) {
+                sidebarToggle.addEventListener('click', () => {
+                    mapSidebar.classList.toggle('active');
+                    const icon = sidebarToggle.querySelector('svg');
+                    
+                    if (mapSidebar.classList.contains('active')) {
+                        icon.setAttribute('data-feather', 'x');
+                    } else {
+                        icon.setAttribute('data-feather', 'menu');
+                    }
+                    
+                    feather.replace();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

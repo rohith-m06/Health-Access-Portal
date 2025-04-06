@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthAccess - Quick Share Link</title>
+    <meta name="description" content="Generate a simple shareable link for HealthAccess">
+    
+    <style>
+        /* Simple CSS for the MVP Link Page */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1, h2, h3 {
+            color: #4a6fdc;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4a6fdc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: #3a5dc0;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .link-box {
+            padding: 15px;
+            background-color: #f2f7ff;
+            border: 1px solid #4a6fdc;
+            border-radius: 4px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #4a6fdc;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .result-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HealthAccess Quick Share</h1>
+        <p>Create a simple link to share healthcare access with others</p>
+    </div>
+
+    <div class="card">
+        <h2>Generate MVP Link</h2>
+        <p>Fill out this simple form to create a shareable link for HealthAccess:</p>
+        
+        <form id="mvpForm">
+            <div class="form-group">
+                <label for="userName">Your Name</label>
+                <input type="text" id="userName" class="form-control" placeholder="Enter your name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Your Location (optional)</label>
+                <input type="text" id="location" class="form-control" placeholder="e.g., Rural County, State">
+            </div>
+            
+            <div class="form-group">
+                <label for="purpose">Primary Need</label>
+                <select id="purpose" class="form-control">
+                    <option value="general">General Healthcare Access</option>
+                    <option value="education">Healthcare Education</option>
+                    <option value="locate">Find Healthcare Facility</option>
+                    <option value="assessment">Health Assessment</option>
+                    <option value="telehealth">Telehealth Services</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn">Generate Link</button>
+        </form>
+        
+        <div id="result" class="hidden">
+            <h3>Your Shareable Link</h3>
+            <p>Share this link with anyone who needs access to healthcare resources:</p>
+            
+            <div id="linkBox" class="link-box"></div>
+            
+            <div class="result-actions">
+                <button id="copyBtn" class="btn">Copy Link</button>
+                <button id="openBtn" class="btn btn-secondary">Open Link</button>
+                <button id="resetBtn" class="btn btn-secondary">Generate Another</button>
+            </div>
+        </div>
+    </div>
+    
+    <a href="/" class="back-link">← Back to HealthAccess Home</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mvpForm = document.getElementById('mvpForm');
+            const result = document.getElementById('result');
+            const linkBox = document.getElementById('linkBox');
+            const copyBtn = document.getElementById('copyBtn');
+            const openBtn = document.getElementById('openBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            let currentLink = '';
+            
+            // Generate link based on form data
+            mvpForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const userName = document.getElementById('userName').value;
+                const location = document.getElementById('location').value;
+                const purpose = document.getElementById('purpose').value;
+                
+                // Create a simple token with the user name and timestamp
+                const timestamp = new Date().getTime();
+                const token = btoa(`${userName}-${timestamp}`).replace(/=/g, '');
+                
+                // Create the MVP link
+                const baseUrl = window.location.origin;
+                currentLink = `${baseUrl}/index.html?access=${token}&user=${encodeURIComponent(userName)}&purpose=${purpose}`;
+                
+                if (location) {
+                    currentLink += `&location=${encodeURIComponent(location)}`;
+                }
+                
+                // Display the result
+                linkBox.textContent = currentLink;
+                mvpForm.classList.add('hidden');
+                result.classList.remove('hidden');
+            });
+            
+            // Copy link to clipboard
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(currentLink)
+                    .then(() => {
+                        alert('Link copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy link: ', err);
+                        
+                        // Fallback for browsers without clipboard API
+                        const tempInput = document.createElement('input');
+                        tempInput.value = currentLink;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                        alert('Link copied to clipboard!');
+                    });
+            });
+            
+            // Open the link in a new tab
+            openBtn.addEventListener('click', function() {
+                window.open(currentLink, '_blank');
+            });
+            
+            // Reset the form to generate another link
+            resetBtn.addEventListener('click', function() {
+                result.classList.add('hidden');
+                mvpForm.classList.remove('hidden');
+                mvpForm.reset();
+            });
+        });
+    </script>
+</body>
+</html>

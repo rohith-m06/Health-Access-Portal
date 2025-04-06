@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthAccess - Healthcare for Underserved Communities</title>
+    <meta name="description" content="Improving healthcare access in underserved communities through education, resource mapping, and self-assessment tools">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>HealthAccess</h1>
+        </div>
+        <nav>
+            <ul class="main-nav">
+                <li><a href="index.html" class="active"><i data-feather="home"></i> Home</a></li>
+                <li><a href="pages/map.html"><i data-feather="map"></i> Facility Map</a></li>
+                <li><a href="pages/education.html"><i data-feather="book-open"></i> Education</a></li>
+                <li><a href="pages/assessment.html"><i data-feather="activity"></i> Self-Assessment</a></li>
+                <li><a href="pages/telehealth.html"><i data-feather="video"></i> Telehealth</a></li>
+                <li><a href="mvp-link.html"><i data-feather="link"></i> Quick Share</a></li>
+                <li><a href="pages/settings.html"><i data-feather="settings"></i> Settings</a></li>
+            </ul>
+            <button class="mobile-menu-btn">
+                <i data-feather="menu"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Healthcare Access for All</h2>
+                <p>Empowering underserved communities with tools and information to improve healthcare access and outcomes.</p>
+                <div class="hero-buttons">
+                    <a href="pages/map.html" class="btn btn-primary">Find Healthcare Near You</a>
+                    <a href="pages/assessment.html" class="btn btn-secondary">Take Health Assessment</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>How We Help</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="map-pin"></i>
+                    </div>
+                    <h3>Locate Healthcare</h3>
+                    <p>Find healthcare facilities in your area with our interactive map.</p>
+                    <a href="pages/map.html" class="btn btn-text">View Map <i data-feather="arrow-right"></i></a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="book-open"></i>
+                    </div>
+                    <h3>Health Education</h3>
+                    <p>Access resources on preventive care and managing common conditions.</p>
+                    <a href="pages/education.html" class="btn btn-text">Learn More <i data-feather="arrow-right"></i></a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="activity"></i>
+                    </div>
+                    <h3>Self-Assessment</h3>
+                    <p>Check your health status with our simple assessment tools.</p>
+                    <a href="pages/assessment.html" class="btn btn-text">Start Assessment <i data-feather="arrow-right"></i></a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="video"></i>
+                    </div>
+                    <h3>Telehealth Directory</h3>
+                    <p>Connect with healthcare providers remotely through telehealth services.</p>
+                    <a href="pages/telehealth.html" class="btn btn-text">Find Services <i data-feather="arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="offline-access">
+            <div class="offline-content">
+                <h2>Access Anywhere, Anytime</h2>
+                <p>Our application works offline so you can access health information even without internet connectivity.</p>
+                <a href="pages/settings.html" class="btn btn-primary">Enable Offline Mode</a>
+            </div>
+            <div class="offline-image">
+                <i data-feather="wifi-off" class="large-icon"></i>
+            </div>
+        </section>
+
+        <section class="stats">
+            <h2>The Impact of Healthcare Access</h2>
+            <div class="stats-container">
+                <canvas id="healthStats"></canvas>
+            </div>
+            <p class="stats-note">Data shows improved health outcomes in communities with better healthcare access</p>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HealthAccess</h3>
+                <p>Improving healthcare access in underserved communities</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="pages/map.html">Facility Map</a></li>
+                    <li><a href="pages/education.html">Education</a></li>
+                    <li><a href="pages/assessment.html">Self-Assessment</a></li>
+                    <li><a href="pages/telehealth.html">Telehealth</a></li>
+                    <li><a href="mvp-link.html">Quick Share</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Offline Use</h3>
+                <p>This application is designed to work offline. Save this page for offline access.</p>
+                <button id="saveOfflineBtn" class="btn btn-secondary">Save for Offline</button>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 HealthAccess. All rights reserved.</p>
+            <p>This application is for informational purposes only and does not constitute medical advice.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="js/app.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/offline.js"></script>
+    
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+            
+            // Initialize the health statistics chart
+            const ctx = document.getElementById('healthStats').getContext('2d');
+            const healthChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Preventable Diseases', 'Maternal Health', 'Child Mortality', 'Chronic Conditions'],
+                    datasets: [{
+                        label: 'Communities with Limited Access',
+                        data: [68, 43, 35, 78],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Communities with Better Access',
+                        data: [32, 15, 12, 45],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cases per 1000 people'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

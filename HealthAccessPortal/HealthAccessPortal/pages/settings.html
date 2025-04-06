@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - HealthAccess</title>
+    <meta name="description" content="Configure your HealthAccess application settings">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    
+    <style>
+        /* Settings page specific styles */
+        .settings-container {
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .settings-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .settings-section {
+            background-color: var(--background-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .settings-section-header {
+            background-color: var(--background-alt);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .settings-section-header i {
+            color: var(--primary-color);
+        }
+        
+        .settings-section-header h3 {
+            margin: 0;
+        }
+        
+        .settings-section-content {
+            padding: 1.5rem;
+        }
+        
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+        
+        .settings-option-info {
+            flex: 1;
+        }
+        
+        .settings-option-info h4 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .settings-option-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .settings-option-control {
+            margin-left: 1rem;
+        }
+        
+        /* Toggle switch styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Font size selector */
+        .font-size-options {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .font-size-option {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .font-size-option.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .font-size-option:hover:not(.active) {
+            background-color: var(--background-alt);
+        }
+        
+        /* Storage usage progress bar */
+        .storage-progress {
+            margin: 1rem 0;
+        }
+        
+        .storage-bar {
+            height: 8px;
+            background-color: var(--background-alt);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .storage-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .storage-fill.low {
+            background-color: var(--success-color);
+        }
+        
+        .storage-fill.medium {
+            background-color: var(--warning-color);
+        }
+        
+        .storage-fill.high {
+            background-color: var(--danger-color);
+        }
+        
+        .storage-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .data-management-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .storage-details {
+            background-color: var(--background-alt);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .storage-details h4 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .storage-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .storage-item {
+            padding: 0.5rem;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .storage-item-name {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+        
+        .storage-item-size {
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-online {
+            background-color: rgba(72, 187, 120, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-offline {
+            background-color: rgba(245, 101, 101, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .help-text {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .about-app {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 2rem;
+            background-color: var(--background-alt);
+            border-radius: 8px;
+        }
+        
+        .app-logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .app-version {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        
+        /* Import/Export file input styling */
+        .file-input-wrapper {
+            position: relative;
+            margin-top: 1rem;
+        }
+        
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--background-alt);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .file-input:hover + .file-input-label {
+            background-color: var(--border-color);
+        }
+        
+        .file-name {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .settings-container {
+                padding: 1rem;
+            }
+            
+            .settings-option {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .settings-option-control {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .font-size-options {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .data-management-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .data-management-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>HealthAccess</h1>
+        </div>
+        <nav>
+            <ul class="main-nav">
+                <li><a href="../index.html"><i data-feather="home"></i> Home</a></li>
+                <li><a href="map.html"><i data-feather="map"></i> Facility Map</a></li>
+                <li><a href="education.html"><i data-feather="book-open"></i> Education</a></li>
+                <li><a href="assessment.html"><i data-feather="activity"></i> Self-Assessment</a></li>
+                <li><a href="telehealth.html"><i data-feather="video"></i> Telehealth</a></li>
+                <li><a href="settings.html" class="active"><i data-feather="settings"></i> Settings</a></li>
+            </ul>
+            <button class="mobile-menu-btn">
+                <i data-feather="menu"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>Settings</h2>
+                <p>Configure your HealthAccess application preferences</p>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <i data-feather="wifi"></i>
+                    <h3>Connection Status</h3>
+                </div>
+                <div class="settings-section-content">
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Current Status</h4>
+                            <p>This is your current connection status</p>
+                        </div>
+                        <div class="settings-option-control">
+                            <span id="offlineStatusIndicator" class="status-indicator">
+                                <i data-feather="wifi"></i> Checking...
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Offline Mode</h4>
+                            <p>Enable offline mode to use the app without internet connection. This will save all data locally on your device.</p>
+                        </div>
+                        <div class="settings-option-control">
+                            <label class="switch">
+                                <input type="checkbox" id="offlineModeToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <i data-feather="hard-drive"></i>
+                    <h3>Data Management</h3>
+                </div>
+                <div class="settings-section-content">
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Storage Usage</h4>
+                            <p>This shows how much storage your HealthAccess data is using on your device</p>
+                            
+                            <div class="storage-progress">
+                                <div class="storage-bar">
+                                    <div id="storageUsage" class="storage-fill low" style="width: 0%"></div>
+                                </div>
+                                <div class="storage-text">
+                                    <span id="storageUsedText">Calculating...</span>
+                                    <span id="storageTotalText"></span>
+                                </div>
+                            </div>
+                            
+                            <div id="storageDetails" class="storage-details" style="display: none;">
+                                <h4>Storage Details</h4>
+                                <div id="storageItems" class="storage-items">
+                                    <!-- Storage items will be populated here by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Cache Management</h4>
+                            <p>Manage application data caching for offline use</p>
+                        </div>
+                        <div class="settings-option-control">
+                            <div class="data-management-actions">
+                                <button id="cacheAllPages" class="btn btn-primary">
+                                    <i data-feather="download"></i> Cache All Pages
+                                </button>
+                                <button id="clearCache" class="btn btn-secondary">
+                                    <i data-feather="trash-2"></i> Clear Cache
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Export Data</h4>
+                            <p>Export all your data (saved resources, assessment results, etc.) as a JSON file for backup</p>
+                        </div>
+                        <div class="settings-option-control">
+                            <button id="exportData" class="btn btn-primary">
+                                <i data-feather="download"></i> Export Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Import Data</h4>
+                            <p>Import previously exported HealthAccess data from a JSON file</p>
+                            
+                            <div class="file-input-wrapper">
+                                <input type="file" id="importDataFile" class="file-input" accept=".json">
+                                <label for="importDataFile" class="file-input-label">
+                                    <i data-feather="upload"></i> Choose File
+                                </label>
+                                <div id="fileName" class="file-name"></div>
+                            </div>
+                        </div>
+                        <div class="settings-option-control">
+                            <button id="importData" class="btn btn-primary" disabled>
+                                <i data-feather="upload"></i> Import Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Reset Application</h4>
+                            <p>Clear all application data and reset to default settings. This action cannot be undone.</p>
+                        </div>
+                        <div class="settings-option-control">
+                            <button id="resetApp" class="btn btn-danger">
+                                <i data-feather="alert-triangle"></i> Reset App
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <i data-feather="eye"></i>
+                    <h3>Display Settings</h3>
+                </div>
+                <div class="settings-section-content">
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>Font Size</h4>
+                            <p>Adjust the text size throughout the application</p>
+                        </div>
+                        <div class="settings-option-control">
+                            <div class="font-size-options">
+                                <div id="fontSizeSmall" class="font-size-option" data-size="small">Small</div>
+                                <div id="fontSizeMedium" class="font-size-option active" data-size="medium">Medium</div>
+                                <div id="fontSizeLarge" class="font-size-option" data-size="large">Large</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <h4>High Contrast Mode</h4>
+                            <p>Increase contrast for better readability</p>
+                        </div>
+                        <div class="settings-option-control">
+                            <label class="switch">
+                                <input type="checkbox" id="highContrastToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-app">
+                <div class="app-logo">HealthAccess</div>
+                <div class="app-version">Version 1.0.0</div>
+                <p>This application is designed to improve healthcare access in underserved communities through education, resource mapping, and self-assessment tools.</p>
+                <p>All data is stored locally on your device for privacy. No data is sent to any servers.</p>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HealthAccess</h3>
+                <p>Improving healthcare access in underserved communities</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="map.html">Facility Map</a></li>
+                    <li><a href="education.html">Education</a></li>
+                    <li><a href="assessment.html">Self-Assessment</a></li>
+                    <li><a href="telehealth.html">Telehealth</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Offline Use</h3>
+                <p>This application is designed to work offline. Save this page for offline access.</p>
+                <button id="saveOfflineBtn" class="btn btn-secondary">Save for Offline</button>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 HealthAccess. All rights reserved.</p>
+            <p>This application is for informational purposes only and does not constitute medical advice.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="../js/app.js"></script>
+    <script src="../js/database.js"></script>
+    <script src="../js/offline.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Feather icons
+            feather.replace();
+            
+            // Get elements
+            const offlineModeToggle = document.getElementById('offlineModeToggle');
+            const highContrastToggle = document.getElementById('highContrastToggle');
+            const fontSizeOptions = document.querySelectorAll('.font-size-option');
+            const exportDataBtn = document.getElementById('exportData');
+            const importDataBtn = document.getElementById('importData');
+            const importDataFile = document.getElementById('importDataFile');
+            const fileNameDisplay = document.getElementById('fileName');
+            const resetAppBtn = document.getElementById('resetApp');
+            const storageDetailsContainer = document.getElementById('storageDetails');
+            const storageItems = document.getElementById('storageItems');
+            
+            // Load current settings
+            loadCurrentSettings();
+            
+            // Update storage usage info
+            updateStorageUsage();
+            
+            // Toggle to show storage details
+            document.getElementById('storageUsedText').addEventListener('click', () => {
+                storageDetailsContainer.style.display = storageDetailsContainer.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // Font size options
+            fontSizeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove active class from all options
+                    fontSizeOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    // Add active class to selected option
+                    option.classList.add('active');
+                    
+                    // Get the selected font size
+                    const fontSize = option.dataset.size;
+                    
+                    // Update settings
+                    updateFontSize(fontSize);
+                });
+            });
+            
+            // Offline mode toggle
+            if (offlineModeToggle) {
+                offlineModeToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        OfflineManager.enableOfflineMode();
+                    } else {
+                        OfflineManager.disableOfflineMode();
+                    }
+                });
+            }
+            
+            // High contrast toggle
+            if (highContrastToggle) {
+                highContrastToggle.addEventListener('change', (e) => {
+                    updateHighContrast(e.target.checked);
+                });
+            }
+            
+            // Export data button
+            if (exportDataBtn) {
+                exportDataBtn.addEventListener('click', () => {
+                    HealthDatabase.exportData();
+                });
+            }
+            
+            // Import data file selection
+            if (importDataFile) {
+                importDataFile.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        fileNameDisplay.textContent = file.name;
+                        importDataBtn.disabled = false;
+                    } else {
+                        fileNameDisplay.textContent = '';
+                        importDataBtn.disabled = true;
+                    }
+                });
+            }
+            
+            // Import data button
+            if (importDataBtn) {
+                importDataBtn.addEventListener('click', () => {
+                    const file = importDataFile.files[0];
+                    if (file) {
+                        HealthDatabase.importData(file)
+                            .then(result => {
+                                HealthAccess.showNotification('Data imported successfully. Refreshing...', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            })
+                            .catch(error => {
+                                HealthAccess.showNotification(`Error importing data: ${error.message}`, 'error');
+                            });
+                    }
+                });
+            }
+            
+            // Reset app button
+            if (resetAppBtn) {
+                resetAppBtn.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to reset the application? All your data will be permanently deleted.')) {
+                        HealthDatabase.clearAllData();
+                        HealthAccess.showNotification('Application reset complete. Refreshing...', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                });
+            }
+            
+            // Function to load current settings
+            function loadCurrentSettings() {
+                try {
+                    const settings = JSON.parse(localStorage.getItem('healthaccess-settings') || '{}');
+                    
+                    // Set offline mode toggle
+                    if (offlineModeToggle) {
+                        offlineModeToggle.checked = settings.offlineMode || false;
+                    }
+                    
+                    // Set high contrast toggle
+                    if (highContrastToggle) {
+                        highContrastToggle.checked = settings.highContrast || false;
+                    }
+                    
+                    // Set font size
+                    const fontSize = settings.fontSize || 'medium';
+                    fontSizeOptions.forEach(option => {
+                        if (option.dataset.size === fontSize) {
+                            option.classList.add('active');
+                        } else {
+                            option.classList.remove('active');
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error loading settings:', error);
+                }
+            }
+            
+            // Function to update font size
+            function updateFontSize(size) {
+                try {
+                    const settings = JSON.parse(localStorage.getItem('healthaccess-settings') || '{}');
+                    settings.fontSize = size;
+                    localStorage.setItem('healthaccess-settings', JSON.stringify(settings));
+                    
+                    // Apply setting immediately
+                    document.documentElement.setAttribute('data-font-size', size);
+                    
+                    HealthAccess.showNotification('Font size updated', 'success');
+                } catch (error) {
+                    console.error('Error updating font size:', error);
+                }
+            }
+            
+            // Function to update high contrast
+            function updateHighContrast(enabled) {
+                try {
+                    const settings = JSON.parse(localStorage.getItem('healthaccess-settings') || '{}');
+                    settings.highContrast = enabled;
+                    localStorage.setItem('healthaccess-settings', JSON.stringify(settings));
+                    
+                    // Apply setting immediately
+                    if (enabled) {
+                        document.body.classList.add('high-contrast');
+                    } else {
+                        document.body.classList.remove('high-contrast');
+                    }
+                    
+                    HealthAccess.showNotification('High contrast mode ' + (enabled ? 'enabled' : 'disabled'), 'success');
+                } catch (error) {
+                    console.error('Error updating high contrast:', error);
+                }
+            }
+            
+            // Function to update storage usage
+            function updateStorageUsage() {
+                try {
+                    const stats = HealthDatabase.getStorageStats();
+                    
+                    // Update storage usage bar
+                    const storageUsageBar = document.getElementById('storageUsage');
+                    if (storageUsageBar) {
+                        storageUsageBar.style.width = `${stats.usage}%`;
+                        
+                        // Update color based on usage
+                        storageUsageBar.classList.remove('low', 'medium', 'high');
+                        if (stats.usage > 75) {
+                            storageUsageBar.classList.add('high');
+                        } else if (stats.usage > 50) {
+                            storageUsageBar.classList.add('medium');
+                        } else {
+                            storageUsageBar.classList.add('low');
+                        }
+                    }
+                    
+                    // Update text
+                    const storageUsedText = document.getElementById('storageUsedText');
+                    if (storageUsedText) {
+                        storageUsedText.textContent = `${stats.totalSizeFormatted} used (${stats.usageFormatted})`;
+                    }
+                    
+                    const storageTotalText = document.getElementById('storageTotalText');
+                    if (storageTotalText) {
+                        storageTotalText.textContent = `${stats.limit} MB limit`;
+                    }
+                    
+                    // Update storage details
+                    if (storageItems) {
+                        storageItems.innerHTML = '';
+                        
+                        // Add each storage item
+                        Object.entries(stats.items).forEach(([name, item]) => {
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'storage-item';
+                            itemElement.innerHTML = `
+                                <div class="storage-item-name">${formatStorageName(name)}</div>
+                                <div class="storage-item-size">${item.sizeFormatted} ${item.count ? `(${item.count} items)` : ''}</div>
+                            `;
+                            storageItems.appendChild(itemElement);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error updating storage usage:', error);
+                }
+            }
+            
+            // Helper function to format storage names
+            function formatStorageName(name) {
+                switch (name) {
+                    case 'facilities':
+                        return 'Healthcare Facilities';
+                    case 'educationalResources':
+                        return 'Educational Resources';
+                    case 'telehealthServices':
+                        return 'Telehealth Services';
+                    case 'settings':
+                        return 'Application Settings';
+                    case 'assessments':
+                        return 'Health Assessments';
+                    case 'savedResources':
+                        return 'Saved Resources';
+                    case 'savedTelehealth':
+                        return 'Saved Telehealth Services';
+                    default:
+                        return name.charAt(0).toUpperCase() + name.slice(1);
+                }
+            }
+            
+            // Try to get storage usage (if the browser supports it)
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                navigator.storage.estimate().then(estimate => {
+                    const usedMB = (estimate.usage / 1024 / 1024).toFixed(2);
+                    const totalMB = (estimate.quota / 1024 / 1024).toFixed(2);
+                    const percentUsed = ((estimate.usage / estimate.quota) * 100).toFixed(1);
+                    
+                    console.log(`Storage usage: ${usedMB}MB of ${totalMB}MB (${percentUsed}%)`);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

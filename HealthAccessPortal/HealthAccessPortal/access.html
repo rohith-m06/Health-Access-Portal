@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthAccess - Generate Access Link</title>
+    <meta name="description" content="Generate a shareable access link for HealthAccess">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    
+    <style>
+        /* Access link page specific styles */
+        .access-container {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .access-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .access-card {
+            background-color: var(--background-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .access-form {
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .generated-link {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--background-alt);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .link-display {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: rgba(74, 111, 220, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        
+        .link-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .qr-code {
+            margin: 1.5rem auto;
+            max-width: 200px;
+            max-height: 200px;
+        }
+        
+        .tips-container {
+            margin-top: 2rem;
+        }
+        
+        .tips-list {
+            background-color: var(--background-alt);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .tips-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .access-container {
+                padding: 1rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+            
+            .link-actions {
+                flex-direction: column;
+            }
+            
+            .link-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>HealthAccess</h1>
+        </div>
+        <nav>
+            <ul class="main-nav">
+                <li><a href="index.html"><i data-feather="home"></i> Home</a></li>
+                <li><a href="pages/map.html"><i data-feather="map"></i> Facility Map</a></li>
+                <li><a href="pages/education.html"><i data-feather="book-open"></i> Education</a></li>
+                <li><a href="pages/assessment.html"><i data-feather="activity"></i> Self-Assessment</a></li>
+                <li><a href="pages/telehealth.html"><i data-feather="video"></i> Telehealth</a></li>
+                <li><a href="access.html" class="active"><i data-feather="link"></i> Access Link</a></li>
+            </ul>
+            <button class="mobile-menu-btn">
+                <i data-feather="menu"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="access-container">
+            <div class="access-header">
+                <h2>Generate HealthAccess Link</h2>
+                <p>Create a shareable link to provide access to HealthAccess resources</p>
+            </div>
+            
+            <div class="access-card">
+                <h3>Create Shareable Link</h3>
+                <p>Fill out the form below to generate a shareable link. This link can be shared with others to provide them direct access to HealthAccess.</p>
+                
+                <form id="accessForm" class="access-form">
+                    <div class="form-group">
+                        <label for="userName">Your Name</label>
+                        <input type="text" id="userName" class="form-control" placeholder="Enter your name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="purpose">Purpose</label>
+                        <select id="purpose" class="form-control">
+                            <option value="access">General Access</option>
+                            <option value="education">Educational Resources</option>
+                            <option value="assessment">Health Assessment</option>
+                            <option value="telehealth">Telehealth Services</option>
+                            <option value="map">Healthcare Facilities Map</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="resetForm" class="btn btn-secondary">Reset</button>
+                        <button type="submit" class="btn btn-primary">Generate Link</button>
+                    </div>
+                </form>
+                
+                <div id="generatedLink" class="generated-link">
+                    <h4>Your Shareable Link</h4>
+                    <p>Share this link with others to provide them access to HealthAccess:</p>
+                    
+                    <div id="linkDisplay" class="link-display"></div>
+                    
+                    <div class="link-actions">
+                        <button id="copyLink" class="btn btn-primary">
+                            <i data-feather="copy"></i> Copy Link
+                        </button>
+                        <button id="openLink" class="btn btn-secondary">
+                            <i data-feather="external-link"></i> Open Link
+                        </button>
+                    </div>
+                    
+                    <div class="qr-container">
+                        <h4>Or Scan QR Code:</h4>
+                        <div id="qrCode" class="qr-code"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tips-container">
+                <h3>Tips for Sharing</h3>
+                <ul class="tips-list">
+                    <li><strong>Healthcare Providers:</strong> Share this link with your patients to give them access to self-assessment tools and educational resources.</li>
+                    <li><strong>Community Health Workers:</strong> Use this link to help community members access healthcare facilities in their area.</li>
+                    <li><strong>Patients:</strong> Share this link with family members to help them find healthcare resources.</li>
+                    <li><strong>Educators:</strong> Provide this link to students or community members to increase health literacy.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HealthAccess</h3>
+                <p>Improving healthcare access in underserved communities</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="pages/map.html">Facility Map</a></li>
+                    <li><a href="pages/education.html">Education</a></li>
+                    <li><a href="pages/assessment.html">Self-Assessment</a></li>
+                    <li><a href="pages/telehealth.html">Telehealth</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Offline Use</h3>
+                <p>This application is designed to work offline. Save this page for offline access.</p>
+                <button id="saveOfflineBtn" class="btn btn-secondary">Save for Offline</button>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 HealthAccess. All rights reserved.</p>
+            <p>This application is for informational purposes only and does not constitute medical advice.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="js/app.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/offline.js"></script>
+    <script src="js/server-connection.js"></script>
+    
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Feather icons
+            feather.replace();
+            
+            // Get form elements
+            const accessForm = document.getElementById('accessForm');
+            const resetFormButton = document.getElementById('resetForm');
+            const generatedLinkDiv = document.getElementById('generatedLink');
+            const linkDisplay = document.getElementById('linkDisplay');
+            const copyLinkButton = document.getElementById('copyLink');
+            const openLinkButton = document.getElementById('openLink');
+            const qrCodeDiv = document.getElementById('qrCode');
+            
+            // Current generated link
+            let currentLink = '';
+            
+            // Handle form submission
+            accessForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Get form values
+                const userName = document.getElementById('userName').value;
+                const purpose = document.getElementById('purpose').value;
+                
+                // Generate access link
+                if (typeof ServerConnection !== 'undefined') {
+                    // Show loading state
+                    generatedLinkDiv.style.display = 'block';
+                    linkDisplay.textContent = 'Generating link...';
+                    
+                    // Use server connection to generate link
+                    ServerConnection.generateAccessLink(userName, purpose)
+                        .then(data => {
+                            // Save current link
+                            currentLink = data.accessLink;
+                            
+                            // Display the link
+                            linkDisplay.textContent = currentLink;
+                            
+                            // Generate QR code
+                            if (typeof QRCode !== 'undefined') {
+                                QRCode.toCanvas(qrCodeDiv, currentLink, {
+                                    width: 200,
+                                    margin: 2,
+                                    color: {
+                                        dark: '#4a6fdc',
+                                        light: '#ffffff'
+                                    }
+                                }, function(error) {
+                                    if (error) console.error('Error generating QR code:', error);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error generating link:', error);
+                            linkDisplay.textContent = 'Error generating link. Please try again.';
+                        });
+                } else {
+                    // Fallback if server connection is not available
+                    // Generate a local link
+                    const linkId = Math.random().toString(36).substring(2, 15);
+                    currentLink = `${window.location.origin}?access=${linkId}&user=${encodeURIComponent(userName)}&purpose=${purpose}`;
+                    
+                    // Display the link
+                    generatedLinkDiv.style.display = 'block';
+                    linkDisplay.textContent = currentLink;
+                    
+                    // Generate QR code
+                    if (typeof QRCode !== 'undefined') {
+                        QRCode.toCanvas(qrCodeDiv, currentLink, {
+                            width: 200,
+                            margin: 2,
+                            color: {
+                                dark: '#4a6fdc',
+                                light: '#ffffff'
+                            }
+                        }, function(error) {
+                            if (error) console.error('Error generating QR code:', error);
+                        });
+                    }
+                }
+            });
+            
+            // Handle reset button
+            resetFormButton.addEventListener('click', () => {
+                accessForm.reset();
+                generatedLinkDiv.style.display = 'none';
+                currentLink = '';
+                
+                // Clear QR code
+                while (qrCodeDiv.firstChild) {
+                    qrCodeDiv.removeChild(qrCodeDiv.firstChild);
+                }
+            });
+            
+            // Handle copy button
+            copyLinkButton.addEventListener('click', () => {
+                if (!currentLink) return;
+                
+                if (typeof ServerConnection !== 'undefined') {
+                    // Use server connection to copy to clipboard
+                    ServerConnection.copyToClipboard(currentLink);
+                } else {
+                    // Fallback copy to clipboard
+                    navigator.clipboard.writeText(currentLink)
+                        .then(() => {
+                            // Show notification
+                            if (typeof HealthAccess !== 'undefined') {
+                                HealthAccess.showNotification('Link copied to clipboard', 'success');
+                            } else {
+                                alert('Link copied to clipboard');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error copying text: ', err);
+                            alert('Failed to copy link. Please select and copy it manually.');
+                        });
+                }
+            });
+            
+            // Handle open button
+            openLinkButton.addEventListener('click', () => {
+                if (!currentLink) return;
+                
+                // Open the link in a new tab
+                window.open(currentLink, '_blank');
+            });
+        });
+    </script>
+</body>
+</html>
